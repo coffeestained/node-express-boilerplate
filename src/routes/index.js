@@ -1,16 +1,19 @@
-const router = require("express").Router();
-const common = require('./common');
+// Imports
+import express from 'express';
+const router = express.Router();
+
+// Import Aggregated Routes
+import common from '#routes/common/routes.js';
 
 /**
-*  Register Common Routes
+*  Register Aggregated Routes
 *  @param1 route
 *  @param2 routeFunction(req, res)
 **/
 router.use('/', common);
 
-
 /**
-*  Export Common Routes
+*  Export Aggregated Routes
 *  @public
 **/
-module.exports = router;
+export default router;

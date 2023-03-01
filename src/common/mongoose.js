@@ -1,5 +1,6 @@
-const mongoose = require('mongoose');
-const logger = require('./logger');
+// Imports
+import mongoose from 'mongoose';
+import logger from './logger.js';
 
 // Mongoose Options
 const options = {
@@ -18,7 +19,7 @@ function startMongoose() {
         logger.info(`MongoDB Connection Initiating`);
         logger.debug(`MongoDB Connection Initiating`);
     })
-    .catch((error) => {
+    .catch(async (error) => {
         // Logging
         logger.info(`MongoDB Connection Error`);
         logger.error(`MongoDB Connection Error: ${error}`);
@@ -28,7 +29,6 @@ function startMongoose() {
 
 // Generate mongooseInstance
 let mongooseInstance = startMongoose();
-
 
 // Heartbeat failure
 mongoose.connection.on('disconnected', async function () {
@@ -44,7 +44,7 @@ mongoose.connection.on('disconnected', async function () {
     //       on reconnect. /shrug
     try {
         await mongoose.connection.close()
-    } catch (error) {}
+    } catch (error) { /* empty */ }
 
     // Try to Close & Restart
     mongooseInstance = startMongoose();
@@ -56,6 +56,7 @@ mongoose.connection.on('disconnected', async function () {
  * @returns {object} Mongoose Connection
  * @public
 **/
-exports.connect = () => {
-  return mongooseInstance.connection;
+const connect = () => {
+    return mongooseInstance.connection;
 };
+export default connect;

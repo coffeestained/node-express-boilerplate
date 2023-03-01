@@ -1,6 +1,6 @@
-const { format, createLogger, transports, addColors } = require("winston");
+import { format, createLogger, transports, addColors } from "winston";
 const { combine, timestamp, label, printf } = format;
-require("winston-daily-rotate-file");
+import  'winston-daily-rotate-file';
 
 // Log Format
 const logFormat = printf(({ level, message, label, timestamp }) => {
@@ -59,7 +59,7 @@ const logger = createLogger({
 addColors(logLevels.colors);
 
 // Development Mode Logging Level Ternary
-process.env.ENV === 'development' ? logger.level = 'debug' : null;
+process.env.ENV === 'development' ? logger.level = 'debug' : logger.level = 'error';
 
 // Export Logger
-module.exports = logger;
+export default logger;

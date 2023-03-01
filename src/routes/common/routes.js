@@ -1,5 +1,9 @@
-const router = require("express").Router();
-const ping = require("./ping");
+// Imports
+import express from 'express';
+const router = express.Router();
+
+// Route Functions
+import ping from "./ping.js";
 
 /**
 *  Register Ping Routes
@@ -8,9 +12,8 @@ const ping = require("./ping");
 **/
 router.get('/ping', ping);
 
-
 /**
 *  Export Common Routes
 *  @public
 **/
-module.exports = router;
+export default router;

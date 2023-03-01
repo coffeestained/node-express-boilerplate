@@ -1,11 +1,11 @@
 // Package Imports
-const express = require('express');
-const morgan = require('morgan');
-const bodyParser = require('body-parser');
-const compress = require('compression');
-const methodOverride = require('method-override');
-const cors = require('cors');
-const helmet = require('helmet');
+import express from 'express';
+import morgan from 'morgan';
+import bodyParser from 'body-parser';
+import compress from 'compression';
+import methodOverride from 'method-override';
+import cors from 'cors';
+import helmet from 'helmet';
 
 /**
 * Declare Express App
@@ -38,8 +38,5 @@ app.use(helmet());
 // Register CORS
 app.use(cors());
 
-// Register Error Handler
-
-
 // Export Express App <3
-module.exports = app;
+export default app;
