@@ -1,26 +1,16 @@
-# client-portal-solutions-services
+# node-express-boilerplate
+A solid & updated 2023 node-express boilerplate.
 
-Another resume project.
 
-NodeJS Api.
+## Usage
+1. Clone.
+2. Set up your .env file using sample-env
+2. npm i
+3. bin/start
 
-Implements JSONAPI Specification Responses.
+## Unit Tests
+Maybe I'll do them and expand on the routing.
+Maybe you can start with this and do it.
 
-Implements MONGODB & Mongoose ODM.
-
-More to come.
-
-## Running Node Express
-
-Tunnel to MongoDB (for now)
-
-```bin/start```
-
-## TODO
-
-# Url Needed
-Create and implement Secure VPN Only Connectivity between Angular Application & MongoDB -- currently tunneling.
-
-# https://www.stackpath.com/edge-academy/load-balancing-on-layer-2-versus-layer-3/
-Implement layer 2 and layer 3 api.
-Move sensitive functionality to 2. Keep client facing api calls here in layer 3.
+## Additional TODO
+IDK yet. Feel free to ask.
