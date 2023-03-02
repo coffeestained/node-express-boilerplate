@@ -1,30 +1,54 @@
 export const mongooseOperatorsEnum = {
+    'first': [
+        {'$and': Array},
+        {'$or': Array},
+    ],
     'any': [
-        '$or', '$and',
+        {'$in': Array},
+        {'$nin': Array},
     ],
     'String': [
-        '$ne', '$equals', '$regex',
+        {'$ne': String},
+        {'$eq': String},
+        {'$regex': String},
     ],
     'Array': [
-        '$in', '$nin', '$all',
+        {'$all': Array},
     ],
     'Decimal128': [
-        '$gt', '$lt', '$gte', '$lte', '$ne', '$equals',
+        {'$gt': Number},
+        {'$lt': Number},
+        {'$gte': Number},
+        {'$lte': Number},
+        {'$ne': Number},
+        {'$eq': Number},
     ],
     'Number': [
-        '$gt', '$lt', '$gte', '$lte', '$ne', '$equals',
+        {'$gt': Number},
+        {'$lt': Number},
+        {'$gte': Number},
+        {'$lte': Number},
+        {'$ne': Number},
+        {'$eq': Number},
     ],
     'Date': [
-        '$gt', '$lt', '$gte', '$lte', '$ne', '$equals',
+        {'$gt': Number},
+        {'$lt': Number},
+        {'$gte': Number},
+        {'$lte': Number},
+        {'$ne': Number},
+        {'$eq': Number},
     ],
     'Boolean': [
-        '$ne', '$equals',
+        {'$ne': Boolean},
+        {'$eq': Boolean},
     ],
     'Buffer': [
         // TODO if needed
     ],
     'Mixed': [
-        '$ne', '$equals',
+        {'$ne': String},
+        {'$eq': String},
     ],
     'Map': [
         // TODO if needed

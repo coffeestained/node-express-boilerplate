@@ -114,81 +114,110 @@ export const queryBuilder = async (routeFunctionName = '', schema, query) => {
     logger.debug(`${routeFunctionName} queryBuilder Received`, query);
 
     // Ierate Query Keys
-    Object.keys(query).map((declaredQueryKeyType) => {
+    Object.keys(query).map((queryKey) => {
         // Does Schema Contain Valid The Query Key
-        if (Object.prototype.hasOwnProperty.call(schema.schema.obj, declaredQueryKeyType) && schema.schema.obj[declaredQueryKeyType].queryable) {
+        if (Object.prototype.hasOwnProperty.call(schema.schema.obj, queryKey) && schema.schema.obj[queryKey].queryable) {
             // Transform Query Value
             const transformedValue = transformQueryValue(
-                mongooseOperatorsEnum[schema.schema.obj[declaredQueryKeyType].type.name],
-                query[declaredQueryKeyType],
-                schema.schema.obj[declaredQueryKeyType],
+                mongooseOperatorsEnum[schema.schema.obj[queryKey].type.name].map((op) =>Object.keys(op)[0]),
+                query[queryKey],
+                queryKey,
+                schema.schema.obj[queryKey],
+                0
             );
 
             // Apply Only If A Value
             if (transformedValue && JSON.stringify(transformedValue) !== '{}') {
-                builtQuery.query[declaredQueryKeyType] = transformedValue;
+                builtQuery.query[queryKey] = transformedValue;
             }
         }
     });
 
+    // Logging
+    logger.info(`${routeFunctionName} queryBuilder Finished`);
+    logger.debug(`${routeFunctionName} queryBuilder Finished`, builtQuery);
 
     return builtQuery;
 }
 
 /**
  * This recursive function validates that query key values are allowed to be queried for
- * to the spec at #common/enum.js
+ * to the spec at #common/enum.js. Mongoose / MongoDB does not have functionality to verify a query
+ * is valid. This will accomplish that by trimming / converting / confirming query fields are valid dynamically.
  * @param {array} allowedOps array of operators in #common/enum.js
  * @param {object} queryValue value of any such query key's value in iteration
- * @param {string} declaredQueryKeyType url's req.query object
+ * @param {string} queryKey url's req.query object
+ * @param {object} schemaKeyInfo schema key info
+ * @param {number} index index of the nested level in the object
  * @return {query} return the deeply merged objects
 **/
-function transformQueryValue(allowedOps, queryValue, declaredQueryKeyType) {
+function transformQueryValue(allowedOps, queryValue, queryKey, schemaKeyInfo, index) {
+    // Declare Final Value
+    let finalValue = {};
+
     if (Array.isArray(queryValue)) {
         // Iterate queryValue Recursively
-        queryValue = queryValue.map((value) => transformQueryValue(allowedOps, value, declaredQueryKeyType))
+        finalValue = queryValue.map((value) => transformQueryValue(allowedOps, value, queryKey, schemaKeyInfo, index++))
     } else if (queryValue !== null && typeof queryValue == 'object') {
         // Allowed Mongoose Operator in JSON for this Schema Property Type
         Object.keys(queryValue).forEach((key) => {
-            // Determine if allowed Mongoose Operator in JSON for this Schema Property Type
-            const allowedOperations = [ ...allowedOps, ...mongooseOperatorsEnum.any ]
-            let validKey = allowedOperations.some((v) => v === key);
+            // Build Allowed Operations
+            const allowedOperations = [
+                ...allowedOps,
+                ...mongooseOperatorsEnum['any'].map((op) =>Object.keys(op)[0]),
+                ...(index === 0 ? mongooseOperatorsEnum['first'].map((op) =>Object.keys(op)[0]) : []),
+            ];
 
-            // Keep & Transform Valid Key
+            // Valid Operations
+            const validKey = allowedOperations.some((v) => v === key);
+
+            // Valid Check
             if (validKey) {
-                queryValue[key] = transformQueryValue(allowedOps, queryValue[key], declaredQueryKeyType)
-            } else {
-                // Remove invalid key
-                delete queryValue[key];
+                // Transform Valid Key Value
+                finalValue[key] = transformQueryValue(allowedOps, queryValue[key], queryKey, schemaKeyInfo, index++);
+
+                // Validate Values
+                const validValues = mongooseOperatorsEnum[schemaKeyInfo.type.name].map((validValue) => Object.values(validValue)[0]);
+                validValues.includes(finalValue[key].constructor) ? null : delete finalValue[key];
+
+                // Additional Date Validation
+                if (finalValue[key] instanceof Date && isNaN(finalValue[key])) {
+                     delete finalValue[key];
+                }
             }
         });
     } else {
-        switch (declaredQueryKeyType.type.name) {
+        switch (schemaKeyInfo.type.name) {
             case 'String':
-                break; // Do Nothing
+                // Null Check
+                (queryValue === 'null') ? finalValue = null : finalValue = queryValue;
+                break;
             case 'Decimal128':
-                queryValue = parseFloat(queryValue);
+                // Null Check
+                (queryValue === 'null') ? finalValue = null : finalValue = parseFloat(queryValue);
                 break;
             case 'Number':
-                queryValue = Number(queryValue);
+                // Null Check
+                (queryValue === 'null') ? finalValue = null : finalValue = Number(queryValue);
                 break;
             case 'Date':
-                queryValue = new Date(queryValue);
+                // Null Check
+                (queryValue === 'null') ? finalValue = null : finalValue = new Date(queryValue);
                 break;
             case 'Boolean':
-                queryValue = (queryValue === 'true');
+                finalValue = (queryValue === 'true');
                 break;
             case 'Buffer':
-                break; // Do Nothing
+                break; // TODO
             case 'Mixed':
-                break; // Do Nothing
+                break; // TODO
             case 'Map':
-                break; // Do Nothing
+                break; // TODO
             case 'ObjectId':
-                break; // Do Nothing
+                break; // TODO
             case 'Schema':
-                break; // Do Nothing
+                break; // TODO
         }
     }
-    return queryValue;
+    return finalValue;
 }

@@ -10,7 +10,8 @@ import common from '#routes/common/routes.js';
 *  @param1 route
 *  @param2 routeFunction(req, res)
 **/
-router.use('/', common);
+const apiPrefix = `/api/v${process.env.API_VERSION}`
+router.use(apiPrefix, common);
 
 /**
 *  Export Aggregated Routes
