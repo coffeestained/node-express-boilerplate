@@ -6,7 +6,7 @@
     "#models/*.js": "./src/models/*.js",
     "#common/*.js": "./src/common/*.js",
     "#routes/*.js": "./src/routes/*.js",
-    "#configs/*.js": "./src/configs/*.js"
+    "#configs/*.json": "./src/configs/*.json"
   },
   "dependencies": {
     "compression": "^1.7.4",
