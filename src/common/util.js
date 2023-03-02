@@ -2,6 +2,16 @@ import logger from '#common/logger.js'; // Application Logger
 import { mongooseOperatorsEnum } from '#common/enum.js';
 
 /**
+ * This function will accept a parameter in milliseconds. It returns a promise
+ * resolving setTimeout. Usage: await sleep(1000) would result in a 1 second delay
+ * @param {number} ms number in milliseconds to be resolved in the returned promise
+ * @return {Promise} the Promise resolving the setTimeout
+**/
+export async function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
  * This function will accept the two objects as arguments and return the object of deeply
  * merged with nested properties.
  * @param {object} targetObject objects containing the properties to be merged with source.
@@ -84,7 +94,6 @@ export const asResponse = async (url, query, data, count, limit) => {
  * }
 **/
 export const queryBuilder = async (routeFunctionName = '', schema, query) => {
-    console.log(query['sort'])
     // Generate Query Response
     const builtQuery = {
         query: {},
@@ -95,24 +104,29 @@ export const queryBuilder = async (routeFunctionName = '', schema, query) => {
         }
     };
 
+    // Clean Up Sort & Pagination Keys
+    // Uneeded Past Generate Response Above
+    delete query['sort'];
+    delete query['pagination'];
+
     // Logging
     logger.info(`${routeFunctionName} queryBuilder Received`);
     logger.debug(`${routeFunctionName} queryBuilder Received`, query);
 
     // Ierate Query Keys
-    Object.keys(query).map((path) => {
+    Object.keys(query).map((declaredQueryKeyType) => {
         // Does Schema Contain Valid The Query Key
-        if (Object.prototype.hasOwnProperty.call(schema.schema.obj, path) && schema.schema.obj[path].queryable) {
+        if (Object.prototype.hasOwnProperty.call(schema.schema.obj, declaredQueryKeyType) && schema.schema.obj[declaredQueryKeyType].queryable) {
             // Transform Query Value
             const transformedValue = transformQueryValue(
-                mongooseOperatorsEnum[schema.schema.obj[path].type.name],
-                query[path],
-                schema.schema.obj[path],
+                mongooseOperatorsEnum[schema.schema.obj[declaredQueryKeyType].type.name],
+                query[declaredQueryKeyType],
+                schema.schema.obj[declaredQueryKeyType],
             );
 
             // Apply Only If A Value
             if (transformedValue && JSON.stringify(transformedValue) !== '{}') {
-                builtQuery.query[path] = transformedValue;
+                builtQuery.query[declaredQueryKeyType] = transformedValue;
             }
         }
     });

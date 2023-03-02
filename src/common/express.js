@@ -38,5 +38,8 @@ app.use(helmet());
 // Register CORS
 app.use(cors());
 
+// Register Error Handler
+
+
 // Export Express App <3
 export default app;

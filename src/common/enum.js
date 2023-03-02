@@ -1,4 +1,7 @@
 export const mongooseOperatorsEnum = {
+    'any': [
+        '$or', '$and',
+    ],
     'String': [
         '$ne', '$equals', '$regex',
     ],
