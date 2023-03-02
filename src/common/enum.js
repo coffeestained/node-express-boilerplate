@@ -32,12 +32,12 @@ export const mongooseOperatorsEnum = {
         {'$eq': Number},
     ],
     'Date': [
-        {'$gt': Number},
-        {'$lt': Number},
-        {'$gte': Number},
-        {'$lte': Number},
-        {'$ne': Number},
-        {'$eq': Number},
+        {'$gt': Date},
+        {'$lt': Date},
+        {'$gte': Date},
+        {'$lte': Date},
+        {'$ne': Date},
+        {'$eq': Date},
     ],
     'Boolean': [
         {'$ne': Boolean},

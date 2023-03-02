@@ -139,7 +139,7 @@ export const queryBuilder = async (routeFunctionName = '', schema, query) => {
     // Generate Query Response
     const builtQuery = {
         query: {},
-        sort: {...query['sort']},
+        sort: { created: -1, ...query['sort']},
         pagination: {
             limit: Number(process.env.API_LIMIT),
             skip: 0,

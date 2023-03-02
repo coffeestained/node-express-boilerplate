@@ -15,7 +15,7 @@ app.use(santizizeAndValidateInputs)
 app.use(routes);
 
 // App Error Handler
-app.use((error, req, res) => {
+app.use((error, req, res, next) => {
     // Logging
     logger.info(`Error encountered.`);
     logger.error(`Error encountered. ${error}`);

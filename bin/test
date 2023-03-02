@@ -1,2 +1,3 @@
+# Coming Soon :)
 #!/bin/bash
 node -r dotenv/config ./src/app.js

@@ -8,6 +8,7 @@ const options = {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     serverSelectionTimeoutMS: 5000,
+    dbName: process.env.MONGO_DATABASE,
 };
 
 // Declare Mongoose Object

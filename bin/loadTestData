@@ -1,0 +1,3 @@
+# Coming Soon :)
+#!/bin/bash
+node -r dotenv/config ./bin/loadTestData.js
