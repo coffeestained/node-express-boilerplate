@@ -1,7 +1,6 @@
 # node-express-boilerplate
 A solid & updated 2023 node-express boilerplate.
 
-
 ## Usage
 1. Clone.
 2. Set up your .env file using sample-env
