@@ -1,5 +1,6 @@
 import logger from '#common/logger.js'; // Application Logger
-import { mongooseOperatorsEnum } from '#common/enum.js';
+import { mongooseOperatorsEnum } from '#common/enum.js'; // Application Enums
+import qs from 'qs'; // Query String Module
 
 /**
  * This function will accept a parameter in milliseconds. It returns a promise
@@ -23,21 +24,21 @@ export function deepMergeObject(targetObject, sourceObject) {
     if (Array.isArray(sourceObject)) {
       return [...targetObject, ...sourceObject]
     } else {
-      // Reduce Remaining Entries
-      return Object.entries(sourceObject).reduce((accumulator, [key, value]) => {
-        if (
-          Object.keys(accumulator).includes(key) &&
-          typeof value === 'object'
-        ) {
-            accumulator[key] = deepMergeObject(accumulator[key], value)
-        } else {
-            accumulator[key] = value
-        }
+        // Reduce Remaining Entries
+        return Object.entries(sourceObject).reduce((accumulator, [key, value]) => {
+            if (
+                Object.keys(accumulator).includes(key) &&
+                typeof value === 'object'
+            ) {
+                accumulator[key] = deepMergeObject(accumulator[key], value)
+            } else {
+                accumulator[key] = value
+            }
 
-        return accumulator
-      }, { ...targetObject })
+            return accumulator
+        }, { ...targetObject })
     }
-  }
+}
 
 /**
  * This function builds a RESTFUL response object.
@@ -67,8 +68,49 @@ export function deepMergeObject(targetObject, sourceObject) {
  * }
 **/
 export const asResponse = async (url, query, data, count, limit) => {
-   //console.log(url, query, data, count, limit)
-   return data;
+
+    // Generate Response Object
+    const response = {
+        data: data, links: [], meta: {},
+    };
+
+    if (Array.isArray(response.data)) {
+        // Determine Current Page
+        const currentPage = query.page ? query.page : 1;
+
+        // Generate Pagination Meta
+        const paginationMeta = {
+            total: count,
+            limit,
+            currentPage,
+        };
+
+        // Calculate Links Array
+        const prevPage = (paginationMeta.currentPage - 1) < 1 ? 1 : (paginationMeta.currentPage - 1);
+        const nextPage = (paginationMeta.currentPage + 1) > Math.ceil(paginationMeta.total / paginationMeta.limit) ?
+                Math.ceil(paginationMeta.total / paginationMeta.limit) : (paginationMeta.currentPage + 1);
+        const firstPage = 1;
+        const lastPage = Math.ceil(paginationMeta.total / paginationMeta.limit);
+        const [ prev, next, first, last ] = await Promise.all([
+            decodeURIComponent(qs.stringify(deepMergeObject(query.query, { page: prevPage },))),
+            decodeURIComponent(qs.stringify(deepMergeObject(query.query, { page: nextPage },))),
+            decodeURIComponent(qs.stringify(deepMergeObject(query.query, { page: firstPage },))),
+            decodeURIComponent(qs.stringify(deepMergeObject(query.query, { page: lastPage },)))
+        ]);
+
+        // Await all
+        await Promise.all([
+            response.links.push(`${url}?${prev}`),
+            response.links.push(`${url}?${next}`),
+            response.links.push(`${url}?${first}`),
+            response.links.push(`${url}?${last}`),
+        ]);
+    }
+
+    // TODO: Additional Metadata Handling
+    //      Sky is the limit.
+
+   return response;
 }
 
 /**
@@ -99,10 +141,18 @@ export const queryBuilder = async (routeFunctionName = '', schema, query) => {
         query: {},
         sort: {...query['sort']},
         pagination: {
-            limit: process.env.API_LIMIT,
+            limit: Number(process.env.API_LIMIT),
             skip: 0,
         }
     };
+
+    // Transform Sort Keys to Numbers
+    Object.keys(builtQuery.sort).forEach((key) => {
+        builtQuery.sort[key] = Number(builtQuery.sort[key]);
+
+        // Delete If Invalid
+        isNaN(builtQuery[key]) ? delete builtQuery[key] : null;
+    })
 
     // Clean Up Sort & Pagination Keys
     // Uneeded Past Generate Response Above
@@ -113,10 +163,12 @@ export const queryBuilder = async (routeFunctionName = '', schema, query) => {
     logger.info(`${routeFunctionName} queryBuilder Received`);
     logger.debug(`${routeFunctionName} queryBuilder Received`, query);
 
-    // Ierate Query Keys
+    // TODO Support for dynamic queries containing $or & $and
+    // Iterate Query Keys
     Object.keys(query).map((queryKey) => {
         // Does Schema Contain Valid The Query Key
-        if (Object.prototype.hasOwnProperty.call(schema.schema.obj, queryKey) && schema.schema.obj[queryKey].queryable) {
+        if (
+            Object.prototype.hasOwnProperty.call(schema.schema.obj, queryKey) && schema.schema.obj[queryKey].queryable) {
             // Transform Query Value
             const transformedValue = transformQueryValue(
                 mongooseOperatorsEnum[schema.schema.obj[queryKey].type.name].map((op) =>Object.keys(op)[0]),
@@ -177,11 +229,22 @@ function transformQueryValue(allowedOps, queryValue, queryKey, schemaKeyInfo, in
                 finalValue[key] = transformQueryValue(allowedOps, queryValue[key], queryKey, schemaKeyInfo, index++);
 
                 // Validate Values
-                const validValues = mongooseOperatorsEnum[schemaKeyInfo.type.name].map((validValue) => Object.values(validValue)[0]);
+                const validValues = [
+                    ...mongooseOperatorsEnum[schemaKeyInfo.type.name].map((validValue) => Object.values(validValue)[0]),
+                    ...mongooseOperatorsEnum['any'].map((validValue) => Object.values(validValue)[0])
+                ];
                 validValues.includes(finalValue[key].constructor) ? null : delete finalValue[key];
 
-                // Additional Date Validation
-                if (finalValue[key] instanceof Date && isNaN(finalValue[key])) {
+                // Additional Validations
+                // Bad Date, !(ArrayValue with ArrayKey)
+                if (
+                        finalValue[key] instanceof Date &&
+                        isNaN(finalValue[key]) &&
+                        !(
+                            Array.isArray(finalValue[key] && mongooseOperatorsEnum['any'].map((validValue) => Object.values(validValue)[0]).includes(key)
+                        )
+                    )
+                ) {
                      delete finalValue[key];
                 }
             }
