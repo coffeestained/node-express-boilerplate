@@ -1,9 +1,10 @@
 // Application Imports
-import logger from '#common/logger.js'; // Application Logger
-import app from '#common/express.js'; // Express Application
-import mongoose from '#common/mongoose.js'; // Mongoose Manager
-import { santizizeAndValidateInputs } from '#common/validator.js';
-import routes from '#routes/index.js'; // Routes
+import logger from '@common/logger'; // Application Logger
+import app from '@common/express'; // Express Application
+import mongoose from '@common/mongoose'; // Mongoose Manager
+import { santizizeAndValidateInputs } from '@common/validator';
+import routes from '@routes/index'; // Routes
+import { NextFunction, Request, Response } from 'express';
 
 // Connect to Mongo(ose) DB!
 mongoose();
@@ -15,7 +16,7 @@ app.use(santizizeAndValidateInputs)
 app.use(routes);
 
 // App Error Handler
-app.use((error, req, res, next) => {
+app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
     // Logging
     logger.info(`Error encountered.`);
     logger.error(`Error encountered. ${error}`);

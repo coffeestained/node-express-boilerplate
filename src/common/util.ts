@@ -1,5 +1,5 @@
-import logger from '#common/logger.js'; // Application Logger
-import { mongooseOperatorsEnum } from '#common/enum.js'; // Application Enums
+import logger from '@common/logger'; // Application Logger
+import { mongooseOperatorsEnum } from '@common/enum'; // Application Enums
 import qs from 'qs'; // Query String Module
 
 /**
@@ -194,9 +194,9 @@ export const queryBuilder = async (routeFunctionName = '', schema, query) => {
 
 /**
  * This recursive function validates that query key values are allowed to be queried for
- * to the spec at #common/enum.js. Mongoose / MongoDB does not have functionality to verify a query
+ * to the spec at @common/enum.js. Mongoose / MongoDB does not have functionality to verify a query
  * is valid. This will accomplish that by trimming / converting / confirming query fields are valid dynamically.
- * @param {array} allowedOps array of operators in #common/enum.js
+ * @param {array} allowedOps array of operators in @common/enum.js
  * @param {object} queryValue value of any such query key's value in iteration
  * @param {string} queryKey url's req.query object
  * @param {object} schemaKeyInfo schema key info

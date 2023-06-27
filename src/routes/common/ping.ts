@@ -1,5 +1,5 @@
 // Import Application Stuff
-import logger from '#root/src/common/logger.js';
+import logger from '@common/logger';
 
 const ping = function ping(req, res, next) {
     try {

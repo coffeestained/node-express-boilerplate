@@ -1,10 +1,10 @@
 // Imports
 import express from 'express';
 import swaggerUi from 'swagger-ui-express';
-import swaggerDocument from '#configs/swagger.json' assert { type: "json" };
+import swaggerDocument from '@configs/swagger.json' assert { type: "json" };
 
 // Import Aggregated Routes
-import common from '#routes/common/routes.js';
+import common from '@root/src/routes/common/routes';
 
 // Vars
 const router = express.Router();

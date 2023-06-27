@@ -3,7 +3,11 @@ const { combine, timestamp, label, printf } = format;
 import  'winston-daily-rotate-file';
 
 // Log Format
-const logFormat = printf(({ level, message, label, timestamp }) => {
+const logFormat = printf(
+  (
+   { level, message, label, timestamp } :
+   { level: string, message: string, label: string, timestamp: string }
+  ) => {
     return `${timestamp} [${label}] ${level}: ${message}`;
 });
 

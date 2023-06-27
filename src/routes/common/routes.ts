@@ -3,7 +3,7 @@ import express from 'express';
 const router = express.Router();
 
 // Route Functions
-import ping from "./ping.js";
+import ping from "./ping";
 
 /**
 *  Register Ping Routes

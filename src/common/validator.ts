@@ -1,8 +1,8 @@
-
-import logger from '#common/logger.js'; // Application Logger
+import logger from '@common/logger.js'; // Application Logger
+import { NextFunction, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 
-export function santizizeAndValidateInputs(req, res, next) {
+export function santizizeAndValidateInputs(req: Request, res: Response, next: NextFunction) {
     // Result
     let valid = true;
 

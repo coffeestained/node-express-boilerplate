@@ -1,6 +1,6 @@
 // Imports
 import mongoose from 'mongoose';
-import logger from './logger.js';
+import logger from './logger';
 
 // Mongoose Options
 const options = {
